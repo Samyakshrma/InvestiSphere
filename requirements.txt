@@ -1,0 +1,22 @@
+# Core Libraries
+fastapi
+uvicorn
+requests
+python-dotenv
+numpy
+faiss-cpu
+pandas
+
+# Azure
+azure-storage-blob
+azure-ai-ml
+azure-identity
+openai
+
+# Data
+yfinance
+
+# Langchain for potential future use
+langchain
+langchain-community
+langchain-openai
