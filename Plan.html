@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestiSphere - Interactive Project Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals (Off-white, slate gray, muted teal accent) -->
+    <!-- Application Structure Plan: A single-page dashboard with top navigation to scroll to sections (Overview, Timeline, Architecture, Tech Stack, Cost). This structure transforms the linear report into an explorable plan. The key interactions are the clickable timeline to reveal phase details and the interactive architecture diagram to explain the system flow. This is more user-friendly than a static document, allowing users to quickly jump to the information they need and interactively learn about the project's structure and flow. -->
+    <!-- Visualization & Content Choices: Report Section 'Phased Plan' -> Goal: Organize/Change -> Viz: Interactive horizontal timeline (HTML buttons + JS) -> Interaction: Click phase to show details. Justification: More engaging and less overwhelming than a long list. Report Section 'Architecture Flow' -> Goal: Organize/Relationships -> Viz: Diagram with HTML/Tailwind -> Interaction: Click component to see description. Justification: Visually explains system connections better than a text block. Tech Stack/Cost -> Goal: Inform -> Viz: Styled cards/lists. Justification: Clean and easy to scan. Library/Method: Vanilla JS, Tailwind CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .active-nav {
+            color: #14B8A6; /* teal-500 */
+            font-weight: 600;
+        }
+        .timeline-btn-active {
+            background-color: #0D9488 !important; /* teal-600 */
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.4);
+        }
+        .architecture-node {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .architecture-node:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.3);
+        }
+        .architecture-node.selected {
+            border-color: #14B8A6;
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
+        }
+        .connector {
+            position: absolute;
+            background-color: #94A3B8; /* slate-400 */
+            z-index: -1;
+        }
+        .connector.horizontal {
+            height: 2px;
+        }
+        .connector.vertical {
+            width: 2px;
+        }
+        .arrow-right {
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 8px solid #94A3B8; /* slate-400 */
+        }
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #94A3B8; /* slate-400 */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-2xl text-teal-600">InvestiSphere</span>
+                    <span class="text-xl ml-2 font-light text-slate-500 hidden sm:inline">| Project Plan</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Overview</a>
+                        <a href="#timeline" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Timeline</a>
+                        <a href="#architecture" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Architecture</a>
+                        <a href="#stack" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Tech Stack</a>
+                        <a href="#cost" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Cost Strategy</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Section 1: Overview -->
+        <section id="overview" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">Project Overview</h2>
+            <p class="mt-4 text-lg text-slate-600">This interactive document outlines the plan for building InvestiSphere, an AI-powered system that automates financial research and transforms unstructured data into actionable investment reports.</p>
+            
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-teal-700">Project Vision</h3>
+                    <p class="mt-2 text-slate-600">To create a multi-agent AI system for automated financial research and analysis, producing high-quality investment reports from vast data sources.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-teal-700">Core Goal</h3>
+                    <p class="mt-2 text-slate-600">Build a functional prototype capable of analyzing a public company by synthesizing diverse information, all while operating within Azure's free tier to minimize costs.</p>
+                </div>
+            </div>
+
+            <div class="mt-10 bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold text-teal-700">Key Objectives</h3>
+                <ul class="mt-4 space-y-3">
+                    <li class="flex items-start"><span class="text-teal-500 font-bold mr-3">✔</span><span>Develop a system of specialized AI agents for financial analysis.</span></li>
+                    <li class="flex items-start"><span class="text-teal-500 font-bold mr-3">✔</span><span>Implement a cost-effective Vector Database on Azure Blob Storage.</span></li>
+                    <li class="flex items-start"><span class="text-teal-500 font-bold mr-3">✔</span><span>Utilize a Retriever-Augmented Generation (RAG) architecture for in-depth analysis.</span></li>
+                    <li class="flex items-start"><span class="text-teal-500 font-bold mr-3">✔</span><span>Orchestrate agent collaboration to produce cohesive investment reports.</span></li>
+                    <li class="flex items-start"><span class="text-teal-500 font-bold mr-3">✔</span><span>Deploy the entire system on Microsoft Azure using serverless and free-tier services.</span></li>
+                </ul>
+            </div>
+        </section>
+        
+        <div class="my-16 border-t border-slate-200"></div>
+
+        <!-- Section 2: Interactive Timeline -->
+        <section id="timeline" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">Development Timeline</h2>
+            <p class="mt-4 text-lg text-slate-600">An 8-week phased development plan. Click on each phase to see the detailed goals and tasks.</p>
+
+            <div class="mt-10">
+                <div class="flex flex-col md:flex-row justify-between items-center relative">
+                    <div class="absolute top-1/2 left-0 w-full h-0.5 bg-slate-300 -translate-y-1/2 hidden md:block"></div>
+                    <div class="flex flex-col md:flex-row w-full justify-between z-10 space-y-4 md:space-y-0">
+                        <button class="timeline-btn w-full md:w-auto flex-1 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 bg-white text-teal-700 hover:bg-teal-50" data-phase="1">Phase 1: Foundation</button>
+                        <button class="timeline-btn w-full md:w-auto flex-1 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 bg-white text-teal-700 hover:bg-teal-50" data-phase="2">Phase 2: Core Analysis</button>
+                        <button class="timeline-btn w-full md:w-auto flex-1 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 bg-white text-teal-700 hover:bg-teal-50" data-phase="3">Phase 3: Orchestration</button>
+                        <button class="timeline-btn w-full md:w-auto flex-1 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 bg-white text-teal-700 hover:bg-teal-50" data-phase="4">Phase 4: Synthesis & Deploy</button>
+                    </div>
+                </div>
+
+                <div id="timeline-details" class="mt-8">
+                    <div class="phase-detail bg-white p-6 rounded-lg shadow-lg" id="phase-1">
+                        <h3 class="text-xl font-bold text-slate-800">Phase 1: Foundation & Data Ingestion (Weeks 1-2)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">Goal: Set up the core infrastructure and build the data pipeline.</p>
+                        <ul class="mt-4 list-disc list-inside text-slate-600 space-y-2">
+                            <li><span class="font-semibold">Azure Setup:</span> Create resource group, Blob Storage, and Azure OpenAI service.</li>
+                            <li><span class="font-semibold">Vector Database:</span> Develop scripts to manage a FAISS index on Blob Storage.</li>
+                            <li><span class="font-semibold">Data Scraper Agent:</span> Build the first agent to gather, process, and embed data from free APIs and store it in the vector DB.</li>
+                        </ul>
+                    </div>
+                    <div class="phase-detail bg-white p-6 rounded-lg shadow-lg hidden" id="phase-2">
+                        <h3 class="text-xl font-bold text-slate-800">Phase 2: Core Analysis - RAG & Analyst Agent (Weeks 3-4)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">Goal: Implement the core analytical capabilities.</p>
+                        <ul class="mt-4 list-disc list-inside text-slate-600 space-y-2">
+                            <li><span class="font-semibold">RAG Implementation:</span> Create a module to retrieve relevant documents from the vector DB based on a query.</li>
+                            <li><span class="font-semibold">Fundamental Analyst Agent:</span> Build an agent that uses the RAG module to fetch context and generate financial health summaries with Azure OpenAI.</li>
+                        </ul>
+                    </div>
+                    <div class="phase-detail bg-white p-6 rounded-lg shadow-lg hidden" id="phase-3">
+                        <h3 class="text-xl font-bold text-slate-800">Phase 3: Multi-Agent Orchestration (Weeks 5-6)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">Goal: Expand the agent team and enable collaboration.</p>
+                        <ul class="mt-4 list-disc list-inside text-slate-600 space-y-2">
+                            <li><span class="font-semibold">Develop Specialized Agents:</span> Create Technical Analyst (charting) and Macroeconomic Agent (market trends).</li>
+                            <li><span class="font-semibold">Chief Investment Officer (CIO) Agent:</span> Build the orchestrator agent to manage the workflow, prompt other agents, and gather their findings.</li>
+                        </ul>
+                    </div>
+                    <div class="phase-detail bg-white p-6 rounded-lg shadow-lg hidden" id="phase-4">
+                        <h3 class="text-xl font-bold text-slate-800">Phase 4: Synthesis & Deployment (Weeks 7-8)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">Goal: Synthesize the final report and deploy the system as a web application.</p>
+                        <ul class="mt-4 list-disc list-inside text-slate-600 space-y-2">
+                            <li><span class="font-semibold">Report Synthesis:</span> Program the CIO agent to synthesize all findings into a final, comprehensive report.</li>
+                            <li><span class="font-semibold">Deployment on Azure:</span> Deploy agents as Azure Functions and create an optional frontend with Azure App Service.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="my-16 border-t border-slate-200"></div>
+
+        <!-- Section 3: System Architecture -->
+        <section id="architecture" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">System Architecture Flow</h2>
+            <p class="mt-4 text-lg text-slate-600">A visual representation of the data and request flow within the InvestiSphere system. Click on any component to learn more about its role.</p>
+            
+            <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md min-h-[500px] overflow-x-auto">
+                    <div class="relative w-full min-w-[700px] h-[550px]">
+                        <!-- Nodes -->
+                        <div id="node-request" class="architecture-node absolute top-[250px] left-2 bg-rose-100 text-rose-800 p-3 rounded-lg shadow text-center" data-desc="A user or automated trigger initiates an analysis request for a specific company (e.g., 'Analyze NVDA') via an HTTP-triggered Azure Function.">Analysis Request</div>
+                        <div id="node-cio" class="architecture-node absolute top-[250px] left-[200px] bg-teal-100 text-teal-800 p-3 rounded-lg shadow text-center" data-desc="The CIO Agent, acting as the orchestrator, receives the request. It manages the entire workflow by calling other specialized agents to gather intelligence.">CIO Agent<br>(Orchestrator)</div>
+                        <div id="node-fundamental" class="architecture-node absolute top-[50px] left-[450px] bg-sky-100 text-sky-800 p-3 rounded-lg shadow text-center" data-desc="Analyzes financial statements and company health. It queries the Vector DB for SEC filings and earnings reports.">Fundamental<br>Analyst Agent</div>
+                        <div id="node-technical" class="architecture-node absolute top-[175px] left-[450px] bg-sky-100 text-sky-800 p-3 rounded-lg shadow text-center" data-desc="Analyzes stock price charts and trading volume patterns using historical data from sources like yfinance.">Technical<br>Analyst Agent</div>
+                        <div id="node-macro" class="architecture-node absolute top-[300px] left-[450px] bg-sky-100 text-sky-800 p-3 rounded-lg shadow text-center" data-desc="Focuses on broad market trends, interest rates, and inflation data from economic data sources.">Macroeconomic<br>Agent</div>
+                        <div id="node-rag" class="architecture-node absolute top-[175px] left-[650px] bg-indigo-100 text-indigo-800 p-3 rounded-lg shadow text-center" data-desc="The RAG system combines retrieval from the Vector DB with generation. Agents fetch relevant data snippets and use them as context for the Azure OpenAI model to generate detailed analysis.">RAG System<br>(Azure OpenAI)</div>
+                        <div id="node-db" class="architecture-node absolute top-[300px] left-[650px] bg-amber-100 text-amber-800 p-3 rounded-lg shadow text-center" data-desc="A FAISS vector index stored on Azure Blob Storage. It contains embedded data from SEC filings, news articles, and transcripts. Updated periodically by the Data Scraper Agent.">Vector DB<br>(on Blob Storage)</div>
+                        <div id="node-synthesis" class="architecture-node absolute top-[450px] left-[325px] bg-teal-100 text-teal-800 p-3 rounded-lg shadow text-center" data-desc="After gathering all reports, the CIO agent synthesizes them into a single, cohesive investment report, evaluating any conflicting information.">Synthesis</div>
+                        <div id="node-report" class="architecture-node absolute top-[450px] left-[575px] bg-emerald-100 text-emerald-800 p-3 rounded-lg shadow text-center" data-desc="The final output is a detailed investment report, which is saved to Blob Storage and can be accessed by the user.">Final Report</div>
+
+                        <!-- Connectors -->
+                        <div class="connector horizontal" style="top: 275px; left: 142px; width: 58px;"></div>
+                        <div class="arrow-right absolute" style="top: 269px; left: 195px;"></div>
+                        
+                        <div class="connector vertical" style="top: 115px; left: 300px; height: 135px;"></div>
+                        <div class="connector horizontal" style="top: 115px; left: 300px; width: 150px;"></div>
+                        <div class="arrow-right absolute" style="top: 109px; left: 445px;"></div>
+
+                        <div class="connector horizontal" style="top: 275px; left: 340px; width: 200px;"></div>
+                        <div class="connector vertical" style="top: 205px; left: 340px; height: 70px;"></div>
+                        <div class="arrow-right absolute" style="top: 199px; left: 445px;"></div>
+
+                        <div class="connector horizontal" style="top: 330px; left: 300px; width: 150px;"></div>
+                        <div class="connector vertical" style="top: 275px; left: 300px; height: 55px;"></div>
+                        <div class="arrow-right absolute" style="top: 324px; left: 445px;"></div>
+
+                        <div class="connector horizontal" style="top: 80px; left: 590px; width: 60px;"></div>
+                        <div class="arrow-right absolute" style="top: 74px; left: 645px;"></div>
+
+                        <div class="connector horizontal" style="top: 205px; left: 590px; width: 60px;"></div>
+                        <div class="arrow-right absolute" style="top: 199px; left: 645px;"></div>
+
+                        <div class="connector horizontal" style="top: 330px; left: 590px; width: 60px;"></div>
+                        <div class="arrow-right absolute" style="top: 324px; left: 645px;"></div>
+
+                        <div class="connector vertical" style="top: 235px; left: 710px; height: 65px;"></div>
+                        <div class="arrow-down absolute" style="top: 295px; left: 704px;"></div>
+
+                        <div class="connector vertical" style="top: 275px; left: 280px; height: 175px;"></div>
+                        <div class="connector horizontal" style="top: 475px; left: 280px; width: 45px;"></div>
+                        <div class="arrow-right absolute" style="top: 469px; left: 320px;"></div>
+
+                        <div class="connector horizontal" style="top: 475px; left: 450px; width: 125px;"></div>
+                        <div class="arrow-right absolute" style="top: 469px; left: 570px;"></div>
+
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div id="architecture-info" class="bg-white p-6 rounded-lg shadow-md sticky top-24 min-h-[200px]">
+                        <h4 class="font-semibold text-lg text-slate-800">Component Details</h4>
+                        <p id="architecture-desc" class="mt-2 text-slate-600">Click on a component in the diagram to see its description here.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="my-16 border-t border-slate-200"></div>
+
+        <!-- Section 4: Tech Stack -->
+        <section id="stack" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">Technology Stack</h2>
+            <p class="mt-4 text-lg text-slate-600">The core technologies and services used to build and deploy InvestiSphere.</p>
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">Programming & Core AI</h3>
+                    <ul class="mt-4 space-y-2 text-slate-600">
+                        <li><span class="font-semibold text-teal-700">Python 3.9+:</span> Primary backend language.</li>
+                        <li><span class="font-semibold text-teal-700">LangChain/LlamaIndex:</span> To streamline RAG and agent development.</li>
+                        <li><span class="font-semibold text-teal-700">FAISS-CPU:</span> For the file-based vector database.</li>
+                        <li><span class="font-semibold text-teal-700">yfinance:</span> For fetching stock data.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">Azure Services</h3>
+                    <ul class="mt-4 space-y-2 text-slate-600">
+                        <li><span class="font-semibold text-teal-700">Azure OpenAI:</span> For embeddings and generative models (GPT).</li>
+                        <li><span class="font-semibold text-teal-700">Azure Functions:</span> For serverless hosting of agent logic.</li>
+                        <li><span class="font-semibold text-teal-700">Azure Blob Storage:</span> To store the Vector DB, data, and reports.</li>
+                        <li><span class="font-semibold text-teal-700">Azure App Service:</span> (Optional) For hosting the user interface.</li>
+                    </ul>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">Data & Scraping</h3>
+                    <ul class="mt-4 space-y-2 text-slate-600">
+                        <li><span class="font-semibold text-teal-700">SEC Filings:</span> 10-Ks, 10-Qs for fundamental data.</li>
+                        <li><span class="font-semibold text-teal-700">Financial News:</span> RSS Feeds and articles for timely updates.</li>
+                         <li><span class="font-semibold text-teal-700">Earnings Transcripts:</span> For qualitative company insights.</li>
+                        <li><span class="font-semibold text-teal-700">Requests & BeautifulSoup:</span> For web scraping tasks.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="my-16 border-t border-slate-200"></div>
+
+        <!-- Section 5: Cost Management -->
+        <section id="cost" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">Cost Management Strategy</h2>
+            <p class="mt-4 text-lg text-slate-600">The entire architecture is designed to be extremely cost-conscious, primarily leveraging free tiers and serverless technology.</p>
+            <div class="mt-10 space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">💸 Zero-Cost Database</h3>
+                    <p class="mt-2 text-slate-600">By using a file-based vector index (FAISS) stored in Azure Blob Storage, we completely avoid the recurring costs of a managed database like Azure Cognitive Search or a dedicated VM.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">⚡ Serverless Compute</h3>
+                    <p class="mt-2 text-slate-600">Azure Functions have a generous free monthly grant (e.g., 1 million executions), which is more than enough for development and initial usage. This means we only pay for compute when an analysis is actively running.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-slate-800">🧠 Smart AI Usage</h3>
+                    <p class="mt-2 text-slate-600">The primary cost will be Azure OpenAI API calls. We will carefully monitor usage against free credits and use smaller, faster models (like GPT-4o-mini) where possible to optimize for cost and performance.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 mt-20">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-400">
+            <p>&copy; 2025 InvestiSphere Project. This is an interactive representation of the project plan.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Timeline interaction
+            const timelineBtns = document.querySelectorAll('.timeline-btn');
+            const phaseDetails = document.querySelectorAll('.phase-detail');
+            
+            function activatePhase(phaseNumber) {
+                timelineBtns.forEach(btn => {
+                    if (btn.dataset.phase === phaseNumber) {
+                        btn.classList.add('timeline-btn-active');
+                    } else {
+                        btn.classList.remove('timeline-btn-active');
+                    }
+                });
+
+                phaseDetails.forEach(detail => {
+                    if (detail.id === `phase-${phaseNumber}`) {
+                        detail.classList.remove('hidden');
+                    } else {
+                        detail.classList.add('hidden');
+                    }
+                });
+            }
+
+            timelineBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activatePhase(btn.dataset.phase);
+                });
+            });
+
+            // Activate first phase by default
+            activatePhase('1');
+
+            // Architecture diagram interaction
+            const architectureNodes = document.querySelectorAll('.architecture-node');
+            const archDesc = document.getElementById('architecture-desc');
+            const archInfoBox = document.getElementById('architecture-info');
+
+            architectureNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    // Remove selected class from all nodes
+                    architectureNodes.forEach(n => n.classList.remove('selected'));
+                    // Add selected class to clicked node
+                    node.classList.add('selected');
+
+                    const description = node.dataset.desc;
+                    archDesc.textContent = description;
+                    archInfoBox.style.borderColor = window.getComputedStyle(node).borderColor;
+                });
+            });
+
+            // Nav link active state on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active-nav');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+             // Smooth scroll for nav links
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
