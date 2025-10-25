@@ -22,16 +22,19 @@ class FundamentalAnalystAgent:
         Performs fundamental analysis and generates a summary.
         """
         print("Fundamental Analyst: Analyzing...")
+        ticker = ticker.upper() # Ensure ticker is uppercase
         
-        # --- FIX: Use multiple, specific queries ---
+        # --- FIX: Pass the Ticker explicitly to the retrieve method ---
         
         # 1. Query for the company summary
         summary_query = f"Company business summary and financial health for {ticker}"
-        summary_context = self.retriever.retrieve(summary_query, k=1) # Get the top 1 summary doc
+        # Pass 'ticker' as the first argument
+        summary_context = self.retriever.retrieve(ticker, summary_query, k=1) 
         
         # 2. Query for recent news
         news_query = f"Recent news headlines for {ticker}"
-        news_context = self.retriever.retrieve(news_query, k=4) # Get the top 4 news docs
+        # Pass 'ticker' as the first argument
+        news_context = self.retriever.retrieve(ticker, news_query, k=4)
         
         # 3. Combine the context
         combined_context = (
@@ -41,8 +44,8 @@ class FundamentalAnalystAgent:
             f"{news_context}"
         )
 
-        if not summary_context and not news_context:
-            return "Fundamental Analyst: Could not retrieve relevant context."
+        if "No context found" in summary_context and "No context found" in news_context:
+            return f"Fundamental Analyst: Could not retrieve relevant context for {ticker}. The index may be empty."
 
         # The prompt remains the same, as it was already fixed.
         prompt = f"""
@@ -72,4 +75,3 @@ class FundamentalAnalystAgent:
             return response.choices[0].message.content
         except Exception as e:
             return f"Fundamental Analyst: Error during analysis - {e}"
-

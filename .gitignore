@@ -213,3 +213,5 @@ faiss_index/
 
 # Ignore generated investment reports
 investment_report_*.txt
+
+reports/
