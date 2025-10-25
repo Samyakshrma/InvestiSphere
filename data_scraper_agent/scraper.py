@@ -25,7 +25,11 @@ class DataScraperAgent:
 
         # 2. Get recent news
         news = stock.news
-        processed_news = [f"Title: {item['title']}. Publisher: {item['publisher']}." for item in news[:5]] # Get top 5 news
+        
+        # --- FIX IS HERE ---
+        # Changed 'title' to 'headline' and 'publisher' to 'link'.
+        # Used .get() for safety to prevent future KeyErrors if a key is missing.
+        processed_news = [f"Headline: {item.get('headline', 'No Headline')}. Link: {item.get('link', 'No Link')}" for item in news[:5]] # Get top 5 news
 
         # Combine data into documents
         documents = [processed_info] + processed_news
@@ -48,3 +52,4 @@ class DataScraperAgent:
         
         # Sync with Azure
         self.faiss_manager.sync_to_azure()
+
