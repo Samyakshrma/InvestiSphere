@@ -131,7 +131,7 @@ class CIOAgent:
         Disclaimer: This is an AI-generated report and not financial advice.
         """
 
-        print(final_report_str)
+        #print(final_report_str)
         
         # Save the report to a file
         report_filename = f"investment_report_{ticker}.txt"

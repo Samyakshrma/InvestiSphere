@@ -3,6 +3,8 @@ import yfinance as yf
 import pandas as pd
 import mplfinance as mpf  # For plotting financial charts
 import openai
+import random # Added for simple forecast modeling
+from datetime import timedelta # Added for date manipulation
 from config import AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, OPENAI_API_VERSION, OPENAI_CHAT_MODEL
 
 class TechnicalAnalystAgent:
@@ -11,6 +13,8 @@ class TechnicalAnalystAgent:
     
     This agent fetches historical data, calculates key indicators (Moving Averages, RSI),
     generates a chart, and uses an LLM to interpret the findings.
+    
+    It also provides a method to get raw data for interactive frontend charts.
     """
 
     def __init__(self, chart_output_dir="charts"):
@@ -30,6 +34,69 @@ class TechnicalAnalystAgent:
             api_version=OPENAI_API_VERSION,
         )
 
+    # --- NEW METHOD FOR FORECASTING ENDPOINT ---
+    
+    def get_chart_data(self, ticker: str):
+        """
+        Fetches historical data and generates a simple 30-day forecast.
+        This method is designed to provide raw data for an interactive frontend chart.
+        
+        Returns:
+            list: A list of dictionaries, each containing 'date', 'price_actual', 
+                  and 'price_forecast'.
+        """
+        print(f"Technical Analyst: Fetching chart data for {ticker}...")
+        try:
+            # 1. Fetch 1 year of historical data
+            stock = yf.Ticker(ticker)
+            hist = stock.history(period="1y")
+
+            if hist.empty:
+                raise ValueError(f"No historical data found for {ticker}.")
+
+            # 2. Format historical data
+            chart_data = []
+            for date, row in hist.iterrows():
+                chart_data.append({
+                    "date": date.strftime('%Y-%m-%d'), # Format date as string
+                    "price_actual": row['Close'],
+                    "price_forecast": None # No forecast for historical data
+                })
+
+            # 3. Generate a simple 30-day conceptual forecast
+            # This is a placeholder for a real model (like ARIMA or Prophet)
+            # We'll use a simple random walk with a slight drift.
+            last_price = hist['Close'].iloc[-1]
+            last_date = hist.index[-1]
+            
+            # Calculate a simple daily drift (avg daily change over last quarter)
+            daily_returns = hist['Close'].pct_change().tail(60) # Last 60 trading days
+            avg_daily_drift = daily_returns.mean()
+            std_dev = daily_returns.std() # Volatility
+
+            forecast_price = last_price
+            for i in range(1, 31): # Forecast for 30 days
+                # Create a random shock based on volatility, add the drift
+                daily_shock = random.gauss(avg_daily_drift, std_dev)
+                forecast_price *= (1 + daily_shock)
+                
+                # Get the next business day (approximate)
+                next_date = last_date + timedelta(days=i)
+                
+                chart_data.append({
+                    "date": next_date.strftime('%Y-%m-%d'),
+                    "price_actual": None, # No actual price for future dates
+                    "price_forecast": forecast_price
+                })
+                
+            return chart_data
+
+        except Exception as e:
+            print(f"Technical Analyst: Error getting chart data for {ticker} - {e}")
+            raise e # Re-raise exception to be caught by FastAPI
+
+    # --- EXISTING METHOD FOR REPORT GENERATION ---
+
     def analyze(self, ticker: str):
         """
         Performs technical analysis for the given ticker.
@@ -46,9 +113,6 @@ class TechnicalAnalystAgent:
 
         try:
             # 1. Fetch historical data
-            # --- FIX 1: Changed "6mo" to "1y" ---
-            # This ensures we have enough data (approx 252 days) to calculate a 200-day moving average
-            # and prevents the "zero-size array" crash.
             stock = yf.Ticker(ticker)
             hist = stock.history(period="1y")
 
@@ -77,32 +141,26 @@ class TechnicalAnalystAgent:
             # 3. Generate and Save Chart
             chart_path = os.path.join(self.chart_output_dir, f"{ticker}_technical_chart.png")
 
-            # --- FIX 2: Chart Layout ---
-            # volume=True creates panel 1. We must put RSI on a *different* panel, like panel 2.
             ap = [
                 mpf.make_addplot(hist['SMA_50'], color='blue', width=0.7),
                 mpf.make_addplot(hist['SMA_200'], color='red', width=0.7),
-                mpf.make_addplot(hist['RSI'], panel=2, color='purple', ylabel='RSI', ylim=(0,100)) # panel=2 puts this in its own panel
+                mpf.make_addplot(hist['RSI'], panel=2, color='purple', ylabel='RSI', ylim=(0,100)) # panel=2
             ]
 
-            # Generate the plot
-            # We need 3 panels: 0=Price, 1=Volume, 2=RSI.
-            # panel_ratios gives 4 parts to Price, 1 to Volume, 1 to RSI.
             mpf.plot(
                 hist,
-                type='candle',         # Candlestick chart
-                style='yahoo',         # 'yahoo' finance style
+                type='candle',
+                style='yahoo',
                 title=f"{ticker} 1-Year Technical Analysis",
                 ylabel='Price ($)',
-                volume=True,           # Show volume (on panel 1)
+                volume=True,           # panel 1
                 ylabel_lower='Volume',
-                addplot=ap,            # Add our SMA and RSI plots
-                savefig=chart_path,    # Save the figure
+                addplot=ap,
+                savefig=chart_path,
                 panel_ratios=(4, 1, 1) # (Price, Volume, RSI)
             )
             print(f"Chart saved to {chart_path}")
             
-
             # 4. Use OpenAI to Generate a Summary
             
             # Get the latest data points for the prompt
@@ -156,4 +214,3 @@ class TechnicalAnalystAgent:
         except Exception as e:
             print(f"Technical Analyst: Error during analysis for {ticker} - {e}")
             return f"Technical Analyst: Failed to generate report. Error: {e}"
-
