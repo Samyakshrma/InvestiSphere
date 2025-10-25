@@ -1,4 +1,4 @@
-# Fin-AI Analyst: Your Personal AI Investment Advisor 📈🧠
+# InvestiSphere: Your Personal AI Investment Advisor 📈🧠
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue.svg" alt="Python Version">
@@ -17,7 +17,7 @@
 
 ## ℹ️ Overview
 
-**Fin-AI Analyst** is a powerful, AI-driven platform designed to provide comprehensive investment analysis reports for publicly traded stocks. Leveraging a sophisticated multi-agent architecture powered by Azure OpenAI, this application gathers real-time financial data, performs fundamental, technical, and macroeconomic analysis, and synthesizes these findings into a downloadable PDF report, complete with charts and forecasts.
+**InvestiSphere** is a powerful, AI-driven platform designed to provide comprehensive investment analysis reports for publicly traded stocks. Leveraging a sophisticated multi-agent architecture powered by Azure OpenAI, this application gathers real-time financial data, performs fundamental, technical, and macroeconomic analysis, and synthesizes these findings into a downloadable PDF report, complete with charts and forecasts.
 
 This project showcases the integration of Large Language Models (LLMs) with real-time data sources and vector databases to create an intelligent system capable of complex financial reasoning and report generation.
 
@@ -137,8 +137,8 @@ Follow these steps to set up and run the Fin-AI Analyst locally. You will need *
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <your-repository-folder>
+    git clone https://github.com/Samyakshrma/InvestiSphere.git
+    cd InvestiSphere
     ```
 
 2.  **Backend Setup:**
@@ -155,16 +155,22 @@ Follow these steps to set up and run the Fin-AI Analyst locally. You will need *
         ```
     * Create a `.env` file in the backend root directory and add your Azure credentials:
         ```dotenv
-        AZURE_OPENAI_API_KEY="YOUR_AZURE_OPENAI_KEY"
-        AZURE_OPENAI_ENDPOINT="YOUR_AZURE_OPENAI_ENDPOINT"
-        # e.g., [https://your-resource-name.openai.azure.com/](https://your-resource-name.openai.azure.com/)
+            # Azure OpenAI Credentials
+            AZURE_OPENAI_API_KEY=YOUR_AZURE_OPENAI_KEY
+            AZURE_OPENAI_ENDPOINT=YOUR_AZURE_OPENAI_ENDPOINT_URL
 
-        AZURE_STORAGE_CONNECTION_STRING="YOUR_AZURE_BLOB_CONNECTION_STRING"
-        AZURE_STORAGE_CONTAINER_NAME="financial-data" # Or your chosen container name
+            # Azure Blob Storage Credentials
+            AZURE_STORAGE_CONNECTION_STRING=YOUR_AZURE_BLOB_CONNECTION_STRING
+            AZURE_STORAGE_CONTAINER_NAME=YOUR_CONTAINER_NAME 
+
+# Default Ticker (Optional, used if no ticker provided in older scripts)
+DEFAULT_TICKER=MSFT
         ```
 
 3.  **Frontend Setup:**
     * Navigate to the frontend directory (the Next.js project folder).
+        ```bash 
+        git clone https://github.com/Samyakshrma/InvestiSphere-frontend.git
     * Install Node.js dependencies:
         ```bash
         npm install --legacy-peer-deps
